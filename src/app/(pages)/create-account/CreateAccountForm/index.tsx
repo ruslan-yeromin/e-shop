@@ -1,16 +1,16 @@
-'use client'
+"use client"
 
-import React, { useCallback, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useCallback, useRef, useState } from "react"
+import { useForm } from "react-hook-form"
+import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
 
-import { Button } from '../../../_components/Button'
-import { Input } from '../../../_components/Input'
-import { Message } from '../../../_components/Message'
-import { useAuth } from '../../../_providers/Auth'
+import { Button } from "../../../_components/Button"
+import { Input } from "../../../_components/Input"
+import { Message } from "../../../_components/Message"
+import { useAuth } from "../../../_providers/Auth"
 
-import classes from './index.module.scss'
+import classes from "./index.module.scss"
 
 type FormData = {
   email: string
@@ -20,7 +20,7 @@ type FormData = {
 
 const CreateAccountForm: React.FC = () => {
   const searchParams = useSearchParams()
-  const allParams = searchParams.toString() ? `?${searchParams.toString()}` : ''
+  const allParams = searchParams.toString() ? `?${searchParams.toString()}` : ""
   const { login } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -34,25 +34,29 @@ const CreateAccountForm: React.FC = () => {
   } = useForm<FormData>()
 
   const password = useRef({})
-  password.current = watch('password', '')
+  password.current = watch("password", "")
 
   const onSubmit = useCallback(
     async (data: FormData) => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
 
       if (!response.ok) {
-        const message = response.statusText || 'There was an error creating the account.'
+        const message =
+          response.statusText || "There was an error creating the account."
         setError(message)
         return
       }
 
-      const redirect = searchParams.get('redirect')
+      const redirect = searchParams.get("redirect")
 
       const timer = setTimeout(() => {
         setLoading(true)
@@ -63,13 +67,15 @@ const CreateAccountForm: React.FC = () => {
         clearTimeout(timer)
         if (redirect) router.push(redirect as string)
         else router.push(`/`)
-      window.location.href = '/'
+        window.location.href = "/"
       } catch (_) {
         clearTimeout(timer)
-        setError('There was an error with the credentials provided. Please try again.')
+        setError(
+          "There was an error with the credentials provided. Please try again."
+        )
       }
     },
-    [login, router, searchParams],
+    [login, router, searchParams]
   )
 
   return (
@@ -97,18 +103,20 @@ const CreateAccountForm: React.FC = () => {
         label="Confirm Password"
         required
         register={register}
-        validate={value => value === password.current || 'The passwords do not match'}
+        validate={(value) =>
+          value === password.current || "The passwords do not match"
+        }
         error={errors.passwordConfirm}
       />
       <Button
         type="submit"
-        label={loading ? 'Processing' : 'Sign Up'}
+        label={loading ? "Processing" : "Sign Up"}
         disabled={loading}
         appearance="primary"
         className={classes.submit}
       />
       <div>
-        {'Already have an account? '}
+        {"Already have an account? "}
         <Link href={`/login${allParams}`}>Login</Link>
       </div>
     </form>

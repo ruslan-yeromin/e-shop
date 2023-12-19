@@ -1,29 +1,29 @@
-'use client'
+"use client"
 
-import React, { Fragment, useEffect } from 'react'
-import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import React, { Fragment, useEffect } from "react"
+import { Elements } from "@stripe/react-stripe-js"
+import { loadStripe } from "@stripe/stripe-js"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
-import { Settings } from '../../../../payload/payload-types'
-import { Button } from '../../../_components/Button'
-import { LoadingShimmer } from '../../../_components/LoadingShimmer'
-import { useAuth } from '../../../_providers/Auth'
-import { useCart } from '../../../_providers/Cart'
-import { useTheme } from '../../../_providers/Theme'
-import cssVariables from '../../../cssVariables'
-import { CheckoutForm } from '../CheckoutForm'
-import { CheckoutItem } from '../CheckoutItem'
+import { Settings } from "../../../../payload/payload-types"
+import { Button } from "../../../_components/Button"
+import { LoadingShimmer } from "../../../_components/LoadingShimmer"
+import { useAuth } from "../../../_providers/Auth"
+import { useCart } from "../../../_providers/Cart"
+import { useTheme } from "../../../_providers/Theme"
+import cssVariables from "../../../cssVariables"
+import { CheckoutForm } from "../CheckoutForm"
+import { CheckoutItem } from "../CheckoutItem"
 
-import classes from './index.module.scss'
+import classes from "./index.module.scss"
 
 const apiKey = `${process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}`
 const stripe = loadStripe(apiKey)
 
 export const CheckoutPage: React.FC<{
   settings: Settings
-}> = props => {
+}> = (props) => {
   const {
     settings: { productsPage },
   } = props
@@ -39,7 +39,7 @@ export const CheckoutPage: React.FC<{
 
   useEffect(() => {
     if (user !== null && cartIsEmpty) {
-      router.push('/cart')
+      router.push("/cart")
     }
   }, [router, user, cartIsEmpty])
 
@@ -52,9 +52,9 @@ export const CheckoutPage: React.FC<{
           const paymentReq = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL}/api/create-payment-intent`,
             {
-              method: 'POST',
-              credentials: 'include',
-            },
+              method: "POST",
+              credentials: "include",
+            }
           )
 
           const res = await paymentReq.json()
@@ -66,7 +66,7 @@ export const CheckoutPage: React.FC<{
             setClientSecret(res.client_secret)
           }
         } catch (e) {
-          setError('Something went wrong.')
+          setError("Something went wrong.")
         }
       }
 
@@ -80,12 +80,12 @@ export const CheckoutPage: React.FC<{
     <Fragment>
       {cartIsEmpty && (
         <div>
-          {'Your '}
+          {"Your "}
           <Link href="/cart">cart</Link>
-          {' is empty.'}
-          {typeof productsPage === 'object' && productsPage?.slug && (
+          {" is empty."}
+          {typeof productsPage === "object" && productsPage?.slug && (
             <Fragment>
-              {' '}
+              {" "}
               <Link href={`/${productsPage.slug}`}>Continue shopping?</Link>
             </Fragment>
           )}
@@ -104,7 +104,7 @@ export const CheckoutPage: React.FC<{
 
           <ul>
             {cart?.items?.map((item, index) => {
-              if (typeof item.product === 'object') {
+              if (typeof item.product === "object") {
                 const {
                   quantity,
                   product,
@@ -156,20 +156,26 @@ export const CheckoutPage: React.FC<{
             options={{
               clientSecret,
               appearance: {
-                theme: 'stripe',
+                theme: "stripe",
                 variables: {
                   colorText:
-                    theme === 'dark' ? cssVariables.colors.base0 : cssVariables.colors.base1000,
-                  fontSizeBase: '16px',
-                  fontWeightNormal: '500',
-                  fontWeightBold: '600',
+                    theme === "dark"
+                      ? cssVariables.colors.base0
+                      : cssVariables.colors.base1000,
+                  fontSizeBase: "16px",
+                  fontWeightNormal: "500",
+                  fontWeightBold: "600",
                   colorBackground:
-                    theme === 'dark' ? cssVariables.colors.base850 : cssVariables.colors.base0,
-                  fontFamily: 'Inter, sans-serif',
+                    theme === "dark"
+                      ? cssVariables.colors.base850
+                      : cssVariables.colors.base0,
+                  fontFamily: "Inter, sans-serif",
                   colorTextPlaceholder: cssVariables.colors.base500,
                   colorIcon:
-                    theme === 'dark' ? cssVariables.colors.base0 : cssVariables.colors.base1000,
-                  borderRadius: '0px',
+                    theme === "dark"
+                      ? cssVariables.colors.base0
+                      : cssVariables.colors.base1000,
+                  borderRadius: "0px",
                   colorDanger: cssVariables.colors.error500,
                   colorDangerText: cssVariables.colors.error500,
                 },

@@ -1,16 +1,16 @@
-'use client'
+"use client"
 
-import React, { useCallback } from 'react'
-import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
-import { useRouter } from 'next/navigation'
+import React, { useCallback } from "react"
+import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
+import { useRouter } from "next/navigation"
 
-import { Order } from '../../../../payload/payload-types'
-import { Button } from '../../../_components/Button'
-import { Message } from '../../../_components/Message'
-import { priceFromJSON } from '../../../_components/Price'
-import { useCart } from '../../../_providers/Cart'
+import { Order } from "../../../../payload/payload-types"
+import { Button } from "../../../_components/Button"
+import { Message } from "../../../_components/Message"
+import { priceFromJSON } from "../../../_components/Price"
+import { useCart } from "../../../_providers/Cart"
 
-import classes from './index.module.scss'
+import classes from "./index.module.scss"
 
 export const CheckoutForm: React.FC<{}> = () => {
   const stripe = useStripe()
@@ -21,18 +21,19 @@ export const CheckoutForm: React.FC<{}> = () => {
   const { cart, cartTotal } = useCart()
 
   const handleSubmit = useCallback(
-    async e => {
+    async (e) => {
       e.preventDefault()
       setIsLoading(true)
 
       try {
-        const { error: stripeError, paymentIntent } = await stripe?.confirmPayment({
-          elements: elements!,
-          redirect: 'if_required',
-          confirmParams: {
-            return_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/order-confirmation`,
-          },
-        })
+        const { error: stripeError, paymentIntent } =
+          await stripe?.confirmPayment({
+            elements: elements!,
+            redirect: "if_required",
+            confirmParams: {
+              return_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/order-confirmation`,
+            },
+          })
 
         if (stripeError) {
           setError(stripeError.message)
@@ -45,27 +46,31 @@ export const CheckoutForm: React.FC<{}> = () => {
           // you will be redirected to the `/cart` page before this redirect happens
           // Instead, we clear the cart in an `afterChange` hook on the `orders` collection in Payload
           try {
-            const orderReq = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/orders`, {
-              method: 'POST',
-              credentials: 'include',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                total: cartTotal.raw,
-                stripePaymentIntentID: paymentIntent.id,
-                items: (cart?.items || [])?.map(({ product, quantity }) => ({
-                  product: typeof product === 'string' ? product : product.id,
-                  quantity,
-                  price:
-                    typeof product === 'object'
-                      ? priceFromJSON(product.priceJSON, 1, true)
-                      : undefined,
-                })),
-              }),
-            })
+            const orderReq = await fetch(
+              `${process.env.NEXT_PUBLIC_SERVER_URL}/api/orders`,
+              {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  total: cartTotal.raw,
+                  stripePaymentIntentID: paymentIntent.id,
+                  items: (cart?.items || [])?.map(({ product, quantity }) => ({
+                    product: typeof product === "string" ? product : product.id,
+                    quantity,
+                    price:
+                      typeof product === "object"
+                        ? priceFromJSON(product.priceJSON, 1, true)
+                        : undefined,
+                  })),
+                }),
+              }
+            )
 
-            if (!orderReq.ok) throw new Error(orderReq.statusText || 'Something went wrong.')
+            if (!orderReq.ok)
+              throw new Error(orderReq.statusText || "Something went wrong.")
 
             const {
               error: errorFromRes,
@@ -80,19 +85,21 @@ export const CheckoutForm: React.FC<{}> = () => {
 
             router.push(`/order-confirmation?order_id=${doc.id}`)
           } catch (err) {
-            // don't throw an error if the order was not created successfully
-            // this is because payment _did_ in fact go through, and we don't want the user to pay twice
+            // don"t throw an error if the order was not created successfully
+            // this is because payment _did_ in fact go through, and we don"t want the user to pay twice
             console.error(err.message) // eslint-disable-line no-console
-            router.push(`/order-confirmation?error=${encodeURIComponent(err.message)}`)
+            router.push(
+              `/order-confirmation?error=${encodeURIComponent(err.message)}`
+            )
           }
         }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Something went wrong.'
+        const msg = err instanceof Error ? err.message : "Something went wrong."
         setError(`Error while submitting payment: ${msg}`)
         setIsLoading(false)
       }
     },
-    [stripe, elements, router, cart, cartTotal],
+    [stripe, elements, router, cart, cartTotal]
   )
 
   return (
@@ -102,7 +109,7 @@ export const CheckoutForm: React.FC<{}> = () => {
       <div className={classes.actions}>
         <Button label="Back to cart" href="/cart" appearance="secondary" />
         <Button
-          label={isLoading ? 'Loading...' : 'Checkout'}
+          label={isLoading ? "Loading..." : "Checkout"}
           type="submit"
           appearance="primary"
           disabled={!stripe || isLoading}
